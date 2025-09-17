@@ -57,31 +57,71 @@
     }
 
     /* Intro Envelope */
-    .overlay{ position:fixed; inset:0; z-index:60; background:#efece6; display:flex; align-items:center; justify-content:center; }
-    .envelope{ position:relative; width:min(92vw, 560px); height:min(62vh, 420px); border-radius:18px; background:#fff; box-shadow:0 30px 80px rgba(0,0,0,.15); overflow:hidden; }
+    .overlay{
+      position:fixed; inset:0; z-index:9999; background:#efece6;
+      display:flex; align-items:center; justify-content:center;
+      pointer-events:auto; touch-action:none; overscroll-behavior:contain;
+    }
+    .envelope{
+      position:relative; width:min(92vw, 560px); height:min(62vh, 420px);
+      border-radius:18px; background:#fff; box-shadow:0 30px 80px rgba(0,0,0,.15); overflow:hidden;
+    }
     .envelope .panel{ position:absolute; inset:0; background:#fff; }
-    .envelope .flap{ position:absolute; inset:0 0 50% 0; background:#f7f5f0; transform-origin:50% 100%; transform:rotateX(0deg); transition:transform 1000ms cubic-bezier(.25,.9,.2,1); border-bottom:1px solid #ead9b9; }
-    .envelope .seal{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:66px; height:66px; border-radius:999px; background:radial-gradient(circle at 30% 30%, #fff, #e6e6e6); box-shadow:0 6px 16px rgba(0,0,0,.15) inset, 0 12px 24px rgba(0,0,0,.1); border:3px solid #d6c29b; display:grid; place-items:center; cursor:pointer; }
-    .seal::after{ content:""; width:78px; height:78px; border-radius:999px; position:absolute; inset:-9px; border:2px dashed #d6c29b; opacity:.7; }
+    .envelope .flap{
+      position:absolute; inset:0 0 50% 0; background:#f7f5f0;
+      transform-origin:50% 100%; transform:rotateX(0deg);
+      transition:transform 1000ms cubic-bezier(.25,.9,.2,1);
+      border-bottom:1px solid #ead9b9;
+    }
+    .envelope .seal{
+      position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+      width:66px; height:66px; border-radius:999px;
+      background:radial-gradient(circle at 30% 30%, #fff, #e6e6e6);
+      box-shadow:0 6px 16px rgba(0,0,0,.15) inset, 0 12px 24px rgba(0,0,0,.1);
+      border:3px solid #d6c29b; display:grid; place-items:center; cursor:pointer;
+    }
+    .seal::after{
+      content:""; width:78px; height:78px; border-radius:999px; position:absolute; inset:-9px;
+      border:2px dashed #d6c29b; opacity:.7;
+    }
     .envelope.open .flap{ transform:rotateX(-180deg); }
-    .envelope .card{ position:absolute; inset:12% 10%; background:#fff; border-radius:16px; box-shadow:0 12px 24px rgba(0,0,0,.08); display:grid; place-items:center; text-align:center; padding:22px; }
-    .envelope .card h2{ font-family: 'Playfair Display', serif; letter-spacing:.06em; font-size:clamp(18px, 4vw, 28px); color:#777; }
-    .envelope .card .monogram{ font-family:'Playfair Display', serif; font-weight:700; font-size:clamp(40px, 12vw, 68px); color:var(--ink); }
+    .envelope .card{
+      position:absolute; inset:12% 10%; background:#fff; border-radius:16px;
+      box-shadow:0 12px 24px rgba(0,0,0,.08); display:grid; place-items:center;
+      text-align:center; padding:22px;
+    }
+    .envelope .card h2{
+      font-family: 'Playfair Display', serif; letter-spacing:.06em;
+      font-size:clamp(18px, 4vw, 28px); color:#777;
+    }
+    .envelope .card .monogram{
+      font-family:'Playfair Display', serif; font-weight:700;
+      font-size:clamp(40px, 12vw, 68px); color:var(--ink);
+    }
     .overlay.fade{ animation:fadeout 900ms ease-out forwards 900ms; }
     @keyframes fadeout { to{ opacity:0; visibility:hidden } }
 
+    /* Lock scroll while intro overlay is visible */
+    body.is-locked{ overflow:hidden; height:100vh; }
+
     /* Scroll reveal utility */
-    [data-anim]{ opacity:0; transform: translateY(24px) scale(.98); transition: opacity .8s ease, transform .8s cubic-bezier(.22,.7,.26,1); }
+    [data-anim]{ opacity:0; transform: translateY(24px) scale(.98);
+      transition: opacity .8s ease, transform .8s cubic-bezier(.22,.7,.26,1); }
     [data-anim].show{ opacity:1; transform: translateY(0) scale(1); }
 
     /* Floating sparkles (subtle) */
-    .sparkle{ position:absolute; width:2px; height:2px; background:linear-gradient(#fff,#fff); border-radius:50%; filter:blur(.2px); opacity:.8; animation:float 12s linear infinite; }
-    @keyframes float{ 0%{ transform:translateY(0) translateX(0) scale(0.7) } 50%{ transform:translateY(-40px) translateX(10px) scale(1) } 100%{ transform:translateY(-80px) translateX(0) scale(0.6); opacity:.2 } }
+    .sparkle{ position:absolute; width:2px; height:2px; background:linear-gradient(#fff,#fff);
+      border-radius:50%; filter:blur(.2px); opacity:.8; animation:float 12s linear infinite; }
+    @keyframes float{
+      0%{ transform:translateY(0) translateX(0) scale(0.7) }
+      50%{ transform:translateY(-40px) translateX(10px) scale(1) }
+      100%{ transform:translateY(-80px) translateX(0) scale(0.6); opacity:.2 }
+    }
   </style>
 </head>
-<body class="font-sans text-[17px] leading-relaxed selection:bg-gold/20">
+<body class="is-locked font-sans text-[17px] leading-relaxed selection:bg-gold/20">
   <!-- INTRO ENVELOPE OVERLAY -->
-  <div id="overlay" class="overlay">
+  <div id="overlay" class="overlay" aria-modal="true" role="dialog">
     <div class="envelope texture gold-stroke" id="envelope">
       <div class="panel"></div>
       <div class="flap"></div>
@@ -209,19 +249,35 @@
   </main>
 
   <script>
-    // Intro envelope logic
-    const overlay = document.getElementById('overlay');
+    // Intro envelope logic + autoplay + scroll lock
+    const overlay  = document.getElementById('overlay');
     const envelope = document.getElementById('envelope');
-    const seal = document.getElementById('seal');
+    const seal     = document.getElementById('seal');
 
     function openEnvelope(){
+      if (overlay.dataset.state === 'done') return;
       envelope.classList.add('open');
       overlay.classList.add('fade');
-      setTimeout(()=>{ overlay.style.display='none'; }, 2000);
+      // after animation finishes: hide overlay and unlock scroll
+      setTimeout(()=>{
+        overlay.style.display='none';
+        overlay.dataset.state='done';
+        document.body.classList.remove('is-locked');
+      }, 1600);
     }
 
+    // Block page scroll underneath (iOS/desktop)
+    const blockScroll = (e)=>{ e.preventDefault(); };
+    overlay.addEventListener('touchmove', blockScroll, {passive:false});
+    overlay.addEventListener('wheel', blockScroll, {passive:false});
+
+    // Autoplay envelope on first visit
+    window.addEventListener('load', ()=> {
+      setTimeout(openEnvelope, 800); // tweak delay if needed
+    });
+
+    // Fallback: allow manual open by click / keyboard
     seal.addEventListener('click', openEnvelope);
-    // also open on Enter/Space
     seal.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ openEnvelope(); }});
 
     // Create subtle sparkles on overlay
