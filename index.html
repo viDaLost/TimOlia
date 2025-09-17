@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tim & Olya — Wedding Invitation</title>
+  <meta name="description" content="Приглашение на свадьбу Tim & Olya — 15.10.2025, КМВ. Save the Date, dress code, детали и фото." />
+
+  <!-- Fonts & Tailwind -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Montserrat', 'system-ui', 'sans-serif'],
+            serif: ['"Playfair Display"', 'Georgia', 'serif']
+          },
+          colors: {
+            paper: '#fbfbfb',
+            ink: '#2b2f36',
+            gold: {
+              DEFAULT: '#c6a15a',
+              600: '#b28b45'
+            }
+          },
+          boxShadow: {
+            soft: '0 10px 30px rgba(0,0,0,.06)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root{ --gold:#c6a15a; --ink:#2b2f36; --paper:#fbfbfb }
+    html,body { background:#f6f6f6; color:var(--ink); }
+    .texture { background: var(--paper); }
+    /* Paper subtle texture */
+    .texture::before{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background-image: url('paper-texture.png'); /* optional: replace with your texture */
+      opacity:.12; mix-blend-mode:multiply; border-radius:inherit;
+    }
+    /* Gold gradient stroke helper */
+    .gold-stroke{ position:relative; }
+    .gold-stroke::after{ content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+      border:1.6px solid transparent; background:
+        linear-gradient(#fff0,#fff0) padding-box,
+        linear-gradient(135deg, #f2d99b, var(--gold), #e7c77a) border-box;
+      -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude;
+      border-radius:inherit;
+    }
+
+    /* Intro Envelope */
+    .overlay{ position:fixed; inset:0; z-index:60; background:#efece6; display:flex; align-items:center; justify-content:center; }
+    .envelope{ position:relative; width:min(92vw, 560px); height:min(62vh, 420px); border-radius:18px; background:#fff; box-shadow:0 30px 80px rgba(0,0,0,.15); overflow:hidden; }
+    .envelope .panel{ position:absolute; inset:0; background:#fff; }
+    .envelope .flap{ position:absolute; inset:0 0 50% 0; background:#f7f5f0; transform-origin:50% 100%; transform:rotateX(0deg); transition:transform 1000ms cubic-bezier(.25,.9,.2,1); border-bottom:1px solid #ead9b9; }
+    .envelope .seal{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:66px; height:66px; border-radius:999px; background:radial-gradient(circle at 30% 30%, #fff, #e6e6e6); box-shadow:0 6px 16px rgba(0,0,0,.15) inset, 0 12px 24px rgba(0,0,0,.1); border:3px solid #d6c29b; display:grid; place-items:center; cursor:pointer; }
+    .seal::after{ content:""; width:78px; height:78px; border-radius:999px; position:absolute; inset:-9px; border:2px dashed #d6c29b; opacity:.7; }
+    .envelope.open .flap{ transform:rotateX(-180deg); }
+    .envelope .card{ position:absolute; inset:12% 10%; background:#fff; border-radius:16px; box-shadow:0 12px 24px rgba(0,0,0,.08); display:grid; place-items:center; text-align:center; padding:22px; }
+    .envelope .card h2{ font-family: 'Playfair Display', serif; letter-spacing:.06em; font-size:clamp(18px, 4vw, 28px); color:#777; }
+    .envelope .card .monogram{ font-family:'Playfair Display', serif; font-weight:700; font-size:clamp(40px, 12vw, 68px); color:var(--ink); }
+    .overlay.fade{ animation:fadeout 900ms ease-out forwards 900ms; }
+    @keyframes fadeout { to{ opacity:0; visibility:hidden } }
+
+    /* Scroll reveal utility */
+    [data-anim]{ opacity:0; transform: translateY(24px) scale(.98); transition: opacity .8s ease, transform .8s cubic-bezier(.22,.7,.26,1); }
+    [data-anim].show{ opacity:1; transform: translateY(0) scale(1); }
+
+    /* Floating sparkles (subtle) */
+    .sparkle{ position:absolute; width:2px; height:2px; background:linear-gradient(#fff,#fff); border-radius:50%; filter:blur(.2px); opacity:.8; animation:float 12s linear infinite; }
+    @keyframes float{ 0%{ transform:translateY(0) translateX(0) scale(0.7) } 50%{ transform:translateY(-40px) translateX(10px) scale(1) } 100%{ transform:translateY(-80px) translateX(0) scale(0.6); opacity:.2 } }
+  </style>
+</head>
+<body class="font-sans text-[17px] leading-relaxed selection:bg-gold/20">
+  <!-- INTRO ENVELOPE OVERLAY -->
+  <div id="overlay" class="overlay">
+    <div class="envelope texture gold-stroke" id="envelope">
+      <div class="panel"></div>
+      <div class="flap"></div>
+      <button class="seal" id="seal" aria-label="Открыть приглашение"></button>
+      <div class="card">
+        <div class="text-gold uppercase tracking-[.32em] text-[12px]">Save the Date</div>
+        <div class="monogram mt-2">T & O</div>
+        <h2 class="mt-3">15.10.2025 • КМВ</h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE -->
+  <main class="relative mx-auto max-w-5xl px-5 sm:px-8">
+
+    <!-- HERO / SAVE THE DATE -->
+    <section class="relative mt-16 sm:mt-24" data-anim>
+      <div class="relative rounded-[28px] texture p-8 sm:p-12 shadow-soft gold-stroke overflow-hidden">
+        <div class="absolute -left-10 -top-8 w-40 h-40 rounded-full bg-gold/10 blur-2xl"></div>
+        <div class="absolute -right-10 -bottom-10 w-48 h-48 rounded-full bg-gold/10 blur-2xl"></div>
+
+        <p class="text-center uppercase tracking-[.35em] text-sm text-neutral-500">Save the date</p>
+        <h1 class="font-serif text-center text-5xl sm:text-6xl mt-2">T <span class="text-gold">&</span> O</h1>
+        <p class="text-center mt-6 text-xl sm:text-2xl font-semibold">Tim <span class="text-neutral-400 font-serif italic text-lg align-baseline">and</span> Olya</p>
+        <div class="mt-6 sm:mt-8 grid place-items-center">
+          <div class="inline-flex items-baseline gap-4">
+            <div class="text-3xl font-bold">15.10.2025</div>
+            <span class="text-neutral-400">10:00 • КМВ</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COUPLE CARDS -->
+    <section class="grid sm:grid-cols-2 gap-6 sm:gap-8 mt-12 sm:mt-16">
+      <article class="texture rounded-[24px] p-6 sm:p-8 shadow-soft gold-stroke" data-anim>
+        <header class="flex items-end justify-between mb-4">
+          <h3 class="font-serif italic text-2xl">The Groom</h3>
+        </header>
+        <figure class="rounded-[18px] overflow-hidden aspect-[3/4] bg-neutral-100">
+          <img src="groom.jpg" alt="Tim" class="w-full h-full object-cover" />
+        </figure>
+        <p class="mt-4 text-xl font-semibold">Tim</p>
+      </article>
+
+      <article class="texture rounded-[24px] p-6 sm:p-8 shadow-soft gold-stroke" data-anim>
+        <header class="flex items-end justify-between mb-4">
+          <h3 class="font-serif italic text-2xl">The Bride</h3>
+        </header>
+        <figure class="rounded-[18px] overflow-hidden aspect-[3/4] bg-neutral-100">
+          <img src="bride.jpg" alt="Olya" class="w-full h-full object-cover" />
+        </figure>
+        <p class="mt-4 text-xl font-semibold">Olya</p>
+      </article>
+    </section>
+
+    <!-- DRESS CODE / PALETTE -->
+    <section class="mt-12 sm:mt-16" data-anim>
+      <div class="texture rounded-[24px] p-6 sm:p-10 shadow-soft gold-stroke">
+        <h3 class="font-serif text-center text-3xl">Dress Code</h3>
+        <p class="text-center text-neutral-500 mt-2">Натуральные оттенки — молочный, шампанское, беж, тауп, кофе.</p>
+        <div class="mt-6 grid sm:grid-cols-2 gap-6">
+          <figure class="rounded-[18px] overflow-hidden aspect-[16/10] bg-neutral-100">
+            <img src="moodboard-1.jpg" alt="Moodboard 1" class="w-full h-full object-cover" />
+          </figure>
+          <figure class="rounded-[18px] overflow-hidden aspect-[16/10] bg-neutral-100">
+            <img src="moodboard-2.jpg" alt="Moodboard 2" class="w-full h-full object-cover" />
+          </figure>
+        </div>
+        <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <span class="w-10 h-10 rounded-full border" style="background:#fbf7e8"></span>
+          <span class="w-10 h-10 rounded-full border" style="background:#e8dcc7"></span>
+          <span class="w-10 h-10 rounded-full border" style="background:#d7c3a5"></span>
+          <span class="w-10 h-10 rounded-full border" style="background:#b9a999"></span>
+          <span class="w-10 h-10 rounded-full border" style="background:#7b5a46"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEXT / STORY -->
+    <section class="mt-12 sm:mt-16" data-anim>
+      <article class="texture rounded-[24px] p-6 sm:p-10 shadow-soft gold-stroke">
+        <h3 class="font-serif text-3xl">Дорогие, приглашаем</h3>
+        <p class="mt-3 text-neutral-700">вас разделить с нами этот особенный день. Когда встречаются два сердца — рождается история. Наша история продолжается, и очень скоро она наполнится новым смыслом. 15.10.2025 мы станем семьёй и будем счастливы разделить этот день с вами. Это будет день радости и любви — рядом с дорогими людьми.</p>
+      </article>
+    </section>
+
+    <!-- SCHEDULE / PLACE (optional) -->
+    <section class="mt-12 sm:mt-16 grid sm:grid-cols-2 gap-6 sm:gap-8" data-anim>
+      <div class="texture rounded-[24px] p-6 sm:p-8 shadow-soft gold-stroke">
+        <h4 class="font-serif text-2xl">Когда</h4>
+        <ul class="mt-3 space-y-2">
+          <li><strong>Сбор гостей:</strong> 10:00</li>
+          <li><strong>Церемония:</strong> 11:00</li>
+          <li><strong>Банкет:</strong> 17:00 — Ресторан «Дача»</li>
+        </ul>
+      </div>
+      <div class="texture rounded-[24px] p-6 sm:p-8 shadow-soft gold-stroke">
+        <h4 class="font-serif text-2xl">Где</h4>
+        <p class="mt-3">КМВ, Пятигорск. Точная локация будет отправлена ближе к дате.</p>
+        <a class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold text-white shadow-soft" href="#map" aria-label="Открыть карту">Открыть карту</a>
+      </div>
+    </section>
+
+    <!-- THANK YOU / GALLERY -->
+    <section class="mt-12 sm:mt-16 mb-24" data-anim>
+      <div class="texture rounded-[24px] p-6 sm:p-10 shadow-soft gold-stroke">
+        <div class="grid sm:grid-cols-2 gap-6 items-start">
+          <div class="space-y-4">
+            <figure class="rounded-[18px] overflow-hidden aspect-[4/3] bg-neutral-100">
+              <img src="gallery-1.jpg" alt="Фото 1" class="w-full h-full object-cover" />
+            </figure>
+            <figure class="rounded-[18px] overflow-hidden aspect-[4/3] bg-neutral-100">
+              <img src="gallery-2.jpg" alt="Фото 2" class="w-full h-full object-cover" />
+            </figure>
+          </div>
+          <div class="self-center text-center sm:text-left">
+            <h3 class="font-serif text-4xl">Thank you!<br><span class="text-xl">T & O</span></h3>
+            <p class="mt-4 text-neutral-600">15.10.25 • КМВ • 10:00</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Intro envelope logic
+    const overlay = document.getElementById('overlay');
+    const envelope = document.getElementById('envelope');
+    const seal = document.getElementById('seal');
+
+    function openEnvelope(){
+      envelope.classList.add('open');
+      overlay.classList.add('fade');
+      setTimeout(()=>{ overlay.style.display='none'; }, 2000);
+    }
+
+    seal.addEventListener('click', openEnvelope);
+    // also open on Enter/Space
+    seal.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ openEnvelope(); }});
+
+    // Create subtle sparkles on overlay
+    for(let i=0;i<26;i++){
+      const d=document.createElement('span');
+      d.className='sparkle';
+      d.style.left = Math.random()*100+'%';
+      d.style.top = 20+Math.random()*60+'%';
+      d.style.animationDelay = (Math.random()*6)+'s';
+      overlay.appendChild(d);
+    }
+
+    // Scroll reveal
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          e.target.classList.add('show');
+          io.unobserve(e.target);
+        }
+      })
+    },{ threshold:.2 });
+    document.querySelectorAll('[data-anim]').forEach(el=>io.observe(el));
+  </script>
+</body>
+</html>
