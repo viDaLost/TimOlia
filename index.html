@@ -9,7 +9,7 @@
   <!-- Fonts & Tailwind -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -24,11 +24,29 @@
             ink: '#2b2f36',
             gold: {
               DEFAULT: '#c6a15a',
-              600: '#b28b45'
-            }
+              50: '#fdf9ee',
+              100: '#f9f0dd',
+              200: '#f2e1bb',
+              300: '#ebd299',
+              400: '#e4c377',
+              500: '#dcb455',
+              600: '#b28b45',
+              700: '#856834',
+              800: '#584523',
+              900: '#2b2211'
+            },
+            blush: '#f8f0ee',
+            sage: '#e8f0e8'
           },
           boxShadow: {
-            soft: '0 10px 30px rgba(0,0,0,.06)'
+            soft: '0 10px 30px rgba(0,0,0,.06)',
+            float: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'float-delay': 'float 8s ease-in-out 1s infinite',
+            'float-slow': 'float 10s ease-in-out 2s infinite',
+            'pulse-gentle': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
           }
         }
       }
@@ -36,103 +54,128 @@
   </script>
 
   <style>
-    :root{ --gold:#c6a15a; --ink:#2b2f36; --paper:#fbfbfb }
-    html,body { background:#f6f6f6; color:var(--ink); }
-    .texture { background: var(--paper); }
-    /* Paper subtle texture */
-    .texture::before{
-      content:""; position:absolute; inset:0; pointer-events:none;
-      background-image: url('paper-texture.png'); /* optional: replace with your texture */
-      opacity:.12; mix-blend-mode:multiply; border-radius:inherit;
+    :root {
+      --gold: #c6a15a;
+      --ink: #2b2f36;
+      --paper: #fbfbfb;
+      --transition: all 0.6s cubic-bezier(0.22, 0.7, 0.26, 1);
     }
+    html, body { background: #f6f6f6; color: var(--ink); scroll-behavior: smooth; }
+    .texture { background: var(--paper); position: relative; overflow: hidden; }
+    .texture::before { content: ""; position: absolute; inset: 0; pointer-events: none; background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNmYmZiZmIiLz48cGF0aCBkPSJNMCAwaDEwMHYxMDBIMHoiIGZpbGw9IiNmOGYwZWUiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg=='); opacity: 0.15; mix-blend-mode: multiply; border-radius: inherit; }
+
     /* Gold gradient stroke helper */
-    .gold-stroke{ position:relative; }
-    .gold-stroke::after{ content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-      border:1.6px solid transparent; background:
-        linear-gradient(#fff0,#fff0) padding-box,
-        linear-gradient(135deg, #f2d99b, var(--gold), #e7c77a) border-box;
-      -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor; mask-composite: exclude;
-      border-radius:inherit;
+    .gold-stroke { position: relative; }
+    .gold-stroke::after { content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; border:1.6px solid transparent; background: linear-gradient(#fff0,#fff0) padding-box, linear-gradient(135deg,#f2d99b,var(--gold),#e7c77a) border-box; -webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+
+    /* INTRO ENVELOPE OVERLAY (enhanced) */
+    .overlay { position: fixed; inset: 0; z-index: 9999; background: radial-gradient(1200px 600px at 50% 10%, #fff 0%, #f7f1e8 50%, #efe7da 100%); display: grid; place-items: center; transition: opacity .8s ease, visibility .8s ease; }
+    .overlay.hidden { opacity: 0; visibility: hidden; }
+
+    .envelope3d { width: min(92vw, 620px); height: min(64vh, 460px); perspective: 1600px; }
+    .env { position: relative; width: 100%; height: 100%; border-radius: 20px; transform-style: preserve-3d; box-shadow: 0 30px 80px rgba(0,0,0,.18); }
+
+    .env-base { position: absolute; inset: 0; background: linear-gradient(180deg,#ffffff,#f5efe6); border-radius: 20px; overflow: hidden; transform: translateZ(0); }
+
+    .env-flap { position: absolute; left:0; right:0; top:0; height: 58%; transform-origin: 50% 100%; background: linear-gradient(180deg,#fbf7f0,#efe6d6); border-bottom: 1px solid #ead9b9; border-top-left-radius:20px; border-top-right-radius:20px; box-shadow: 0 6px 18px rgba(0,0,0,.08) inset; }
+
+    .env-letter { position: absolute; left: 7%; right: 7%; top: 14%; bottom: 12%; background: #fff; border-radius: 16px; box-shadow: 0 16px 40px rgba(0,0,0,.12); display: grid; place-items: center; text-align: center; padding: 22px; transform: translate3d(0, 26px, 30px) rotateX(0deg); transition: var(--transition); }
+
+    .seal { position: absolute; left:50%; top:50%; transform: translate(-50%,-30%) translateZ(80px); width: 72px; height: 72px; border-radius: 999px; background: radial-gradient(circle at 30% 30%, #fff, #e6e6e6); box-shadow: 0 6px 16px rgba(0,0,0,.15) inset, 0 12px 24px rgba(0,0,0,.10); border: 3px solid #d6c29b; display: grid; place-items: center; cursor: pointer; transition: transform .25s ease; z-index: 10; }
+    .seal:hover { transform: translate(-50%,-30%) translateZ(80px) scale(1.05); }
+    .seal::after { content: ""; position:absolute; inset:-9px; border: 2px dashed #d6c29b; border-radius: 999px; opacity: .7; }
+
+    /* Envelope open animation states */
+    .env.is-opening .env-flap { animation: flapOpen 1.2s cubic-bezier(.2,.9,.2,1) forwards; }
+    .env.is-opening .seal { animation: sealPop .5s ease forwards; }
+    .env.is-opening .env-letter { animation: letterRise 1s .65s cubic-bezier(.2,.8,.2,1) forwards; }
+
+    @keyframes flapOpen { 0%{ transform: rotateX(0deg); } 100%{ transform: rotateX(-185deg); } }
+    @keyframes sealPop { 0%{ opacity:1; transform: translate(-50%,-30%) translateZ(80px) scale(1); } 100%{ opacity:0; transform: translate(-50%,-30%) translateZ(120px) scale(.7); }
+    }
+    @keyframes letterRise {
+      0% { transform: translate3d(0, 26px, 30px) rotateX(0deg); }
+      60% { transform: translate3d(0, -18px, 40px) rotateX(-6deg); }
+      100% { transform: translate3d(0, -6px, 0) rotateX(0deg); }
     }
 
-    /* Intro Envelope */
-    .overlay{
-      position:fixed; inset:0; z-index:9999; background:#efece6;
-      display:flex; align-items:center; justify-content:center;
-      pointer-events:auto; touch-action:none; overscroll-behavior:contain;
-    }
-    .envelope{
-      position:relative; width:min(92vw, 560px); height:min(62vh, 420px);
-      border-radius:18px; background:#fff; box-shadow:0 30px 80px rgba(0,0,0,.15); overflow:hidden;
-    }
-    .envelope .panel{ position:absolute; inset:0; background:#fff; }
-    .envelope .flap{
-      position:absolute; inset:0 0 50% 0; background:#f7f5f0;
-      transform-origin:50% 100%; transform:rotateX(0deg);
-      transition:transform 1000ms cubic-bezier(.25,.9,.2,1);
-      border-bottom:1px solid #ead9b9;
-    }
-    .envelope .seal{
-      position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
-      width:66px; height:66px; border-radius:999px;
-      background:radial-gradient(circle at 30% 30%, #fff, #e6e6e6);
-      box-shadow:0 6px 16px rgba(0,0,0,.15) inset, 0 12px 24px rgba(0,0,0,.1);
-      border:3px solid #d6c29b; display:grid; place-items:center; cursor:pointer;
-    }
-    .seal::after{
-      content:""; width:78px; height:78px; border-radius:999px; position:absolute; inset:-9px;
-      border:2px dashed #d6c29b; opacity:.7;
-    }
-    .envelope.open .flap{ transform:rotateX(-180deg); }
-    .envelope .card{
-      position:absolute; inset:12% 10%; background:#fff; border-radius:16px;
-      box-shadow:0 12px 24px rgba(0,0,0,.08); display:grid; place-items:center;
-      text-align:center; padding:22px;
-    }
-    .envelope .card h2{
-      font-family: 'Playfair Display', serif; letter-spacing:.06em;
-      font-size:clamp(18px, 4vw, 28px); color:#777;
-    }
-    .envelope .card .monogram{
-      font-family:'Playfair Display', serif; font-weight:700;
-      font-size:clamp(40px, 12vw, 68px); color:var(--ink);
-    }
-    .overlay.fade{ animation:fadeout 900ms ease-out forwards 900ms; }
-    @keyframes fadeout { to{ opacity:0; visibility:hidden } }
-
-    /* Lock scroll while intro overlay is visible */
-    body.is-locked{ overflow:hidden; height:100vh; }
+    .overlay.fadeout { animation: fadeout 900ms ease-out forwards 900ms; }
+    @keyframes fadeout { to { opacity: 0; visibility: hidden; } }
 
     /* Scroll reveal utility */
-    [data-anim]{ opacity:0; transform: translateY(24px) scale(.98);
-      transition: opacity .8s ease, transform .8s cubic-bezier(.22,.7,.26,1); }
-    [data-anim].show{ opacity:1; transform: translateY(0) scale(1); }
+    [data-anim] { opacity: 0; transform: translateY(24px) scale(.98); transition: opacity .8s ease, transform .8s cubic-bezier(.22,.7,.26,1); }
+    [data-anim].show { opacity: 1; transform: translateY(0) scale(1); }
 
-    /* Floating sparkles (subtle) */
-    .sparkle{ position:absolute; width:2px; height:2px; background:linear-gradient(#fff,#fff);
-      border-radius:50%; filter:blur(.2px); opacity:.8; animation:float 12s linear infinite; }
-    @keyframes float{
-      0%{ transform:translateY(0) translateX(0) scale(0.7) }
-      50%{ transform:translateY(-40px) translateX(10px) scale(1) }
-      100%{ transform:translateY(-80px) translateX(0) scale(0.6); opacity:.2 }
+    /* Floating sparkles */
+    .sparkle { position: absolute; width: 2px; height: 2px; background: linear-gradient(#fff,#fff); border-radius: 50%; filter: blur(.2px); opacity: .8; animation: float 12s linear infinite; }
+    @keyframes float { 0%{ transform: translateY(0) translateX(0) scale(.7);} 50%{ transform: translateY(-40px) translateX(10px) scale(1);} 100%{ transform: translateY(-80px) translateX(0) scale(.6); opacity:.2;}}
+
+    /* Decorative circles (kept subtle) */
+    .decoration { position: absolute; opacity: .05; z-index: -1; }
+    .decoration-1 { top: 10%; left: 5%; width: 120px; height: 120px; border-radius: 50%; background: var(--gold); }
+    .decoration-2 { bottom: 15%; right: 8%; width: 80px; height: 80px; border-radius: 50%; background: var(--gold); }
+    .decoration-3 { top: 20%; right: 12%; width: 60px; height: 60px; border-radius: 50%; background: var(--gold); }
+    @media (max-width: 640px){ .decoration{ display:none;} }
+
+    /* SVG BRANCHES (draw-on-scroll) */
+    .branch { position: absolute; pointer-events: none; z-index: 0; opacity: 0; transition: opacity .4s ease; }
+    .branch path.stroke { stroke: var(--gold); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+    .branch path.leaf { fill: #e7dcc3; opacity: 0; transform-origin: center; }
+    .branch.draw { opacity: 1; }
+    .branch.draw path.stroke { animation: dash 1.8s cubic-bezier(.22,.7,.26,1) forwards; }
+    .branch.draw path.leaf { animation: leaves .5s .9s ease forwards; }
+    @keyframes dash { to { stroke-dashoffset: 0; stroke-dasharray: var(--dash, 1000); } }
+    @keyframes leaves { to { opacity: 1; transform: scale(1); } }
+
+    /* Additional SVG animations */
+    .ornament { position: absolute; pointer-events: none; z-index: 0; }
+    .ornament path { stroke: var(--gold); stroke-width: 1.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .ornament.draw path { animation: drawOrnament 2s ease-in-out forwards; }
+    @keyframes drawOrnament { 
+      0% { stroke-dasharray: 1000; stroke-dashoffset: 1000; }
+      100% { stroke-dasharray: 1000; stroke-dashoffset: 0; }
+    }
+
+    .heart { position: absolute; pointer-events: none; z-index: 0; opacity: 0; }
+    .heart path { fill: var(--gold); }
+    .heart.animate { animation: floatUp 4s ease-in-out forwards; }
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(0); opacity: 0; }
+      20% { opacity: 1; transform: translateY(-10px) scale(1); }
+      100% { transform: translateY(-100px) scale(0.8); opacity: 0; }
+    }
+
+    /* Accessibility: reduce motion */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
-<body class="is-locked font-sans text-[17px] leading-relaxed selection:bg-gold/20">
-  <!-- INTRO ENVELOPE OVERLAY -->
-  <div id="overlay" class="overlay" aria-modal="true" role="dialog">
-    <div class="envelope texture gold-stroke" id="envelope">
-      <div class="panel"></div>
-      <div class="flap"></div>
-      <button class="seal" id="seal" aria-label="Открыть приглашение"></button>
-      <div class="card">
-        <div class="text-gold uppercase tracking-[.32em] text-[12px]">Save the Date</div>
-        <div class="monogram mt-2">T & O</div>
-        <h2 class="mt-3">15.10.2025 • КМВ</h2>
+<body class="font-sans text-[17px] leading-relaxed selection:bg-gold/20">
+  <!-- INTRO OVERLAY (opens once per browser) -->
+  <div id="overlay" class="overlay" aria-modal="true" role="dialog" hidden>
+    <div class="envelope3d">
+      <div id="env" class="env gold-stroke texture">
+        <div class="env-base"></div>
+        <div class="env-flap"></div>
+        <div id="letter" class="env-letter">
+          <div class="text-gold uppercase tracking-[.32em] text-[12px]">Save the Date</div>
+          <div class="font-serif font-bold text-[clamp(40px,12vw,68px)] leading-none mt-1">T & O</div>
+          <h2 class="mt-2 font-serif text-[clamp(18px,4vw,28px)] text-neutral-600">15.10.2025 • КМВ</h2>
+        </div>
+        <button id="seal" class="seal" aria-label="Открыть приглашение">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M6 9L12 15L18 9" stroke="#c6a15a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
       </div>
     </div>
   </div>
+
+  <!-- Decorative elements -->
+  <div class="decoration decoration-1"></div>
+  <div class="decoration decoration-2"></div>
+  <div class="decoration decoration-3"></div>
 
   <!-- PAGE -->
   <main class="relative mx-auto max-w-5xl px-5 sm:px-8">
@@ -143,6 +186,13 @@
         <div class="absolute -left-10 -top-8 w-40 h-40 rounded-full bg-gold/10 blur-2xl"></div>
         <div class="absolute -right-10 -bottom-10 w-48 h-48 rounded-full bg-gold/10 blur-2xl"></div>
 
+        <!-- BRANCH TOP LEFT -->
+        <svg class="branch" data-branch style="left:-10px; top:-10px; width:240px; height:180px;" viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path class="stroke" pathLength="1" d="M10 160 C 40 120, 60 120, 90 140 S 150 140, 190 100" />
+          <path class="leaf" d="M84 132 c 8 -12, 18 -12, 26 0 c -8 12 -18 12 -26 0z" />
+          <path class="leaf" d="M168 112 c 7 -10, 15 -10, 22 0 c -7 10 -15 10 -22 0z" />
+        </svg>
+
         <p class="text-center uppercase tracking-[.35em] text-sm text-neutral-500">Save the date</p>
         <h1 class="font-serif text-center text-5xl sm:text-6xl mt-2">T <span class="text-gold">&</span> O</h1>
         <p class="text-center mt-6 text-xl sm:text-2xl font-semibold">Tim <span class="text-neutral-400 font-serif italic text-lg align-baseline">and</span> Olya</p>
@@ -152,143 +202,285 @@
             <span class="text-neutral-400">10:00 • КМВ</span>
           </div>
         </div>
+        <div class="mt-8 flex justify-center">
+          <div class="w-24 h-1 bg-gold rounded-full"></div>
+        </div>
       </div>
     </section>
 
     <!-- COUPLE CARDS -->
-    <section class="grid sm:grid-cols-2 gap-6 sm:gap-8 mt-12 sm:mt-16">
-      <article class="texture rounded-[24px] p-6 sm:p-8 shadow-soft gold-stroke" data-anim>
+    <section class="grid sm:grid-cols-2 gap-6 sm:gap-8 mt-12 sm:mt-16 relative" data-anim>
+      <!-- BRANCH RIGHT -->
+      <svg class="branch" data-branch style="right:-14px; top:-30px; width:240px; height:200px; position:absolute;" viewBox="0 0 240 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path class="stroke" pathLength="1" d="M220 10 C 190 40, 170 70, 160 110 S 120 170, 60 180" />
+        <path class="leaf" d="M170 94 c 7 -12, 16 -12, 24 0 c -8 12 -17 12 -24 0z" />
+        <path class="leaf" d="M120 154 c 8 -10, 16 -10, 24 0 c -8 10 -16 10 -24 0z" />
+      </svg>
+
+      <article class="texture rounded-[24px] p-6 sm:p-8 shadow-soft gold-stroke hover:shadow-float transition-all duration-500" data-anim>
         <header class="flex items-end justify-between mb-4">
           <h3 class="font-serif italic text-2xl">The Groom</h3>
         </header>
-        <figure class="rounded-[18px] overflow-hidden aspect-[3/4] bg-neutral-100">
-          <img src="groom.jpg" alt="Tim" class="w-full h-full object-cover" />
+        <figure class="rounded-[18px] overflow-hidden aspect-[3/4] bg-neutral-100 relative">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10"></div>
+          <img src="https://placehold.co/600x800/f5f5f5/cccccc?text=Tim" alt="Tim" class="w-full h-full object-cover" />
         </figure>
         <p class="mt-4 text-xl font-semibold">Tim</p>
+        <p class="text-neutral-600 mt-2">С нетерпением жду этого дня!</p>
       </article>
 
-      <article class="texture rounded-[24px] p-6 sm:p-8 shadow-soft gold-stroke" data-anim>
+      <article class="texture rounded-[24px] p-6 sm:p-8 shadow-soft gold-stroke hover:shadow-float transition-all duration-500" data-anim>
         <header class="flex items-end justify-between mb-4">
           <h3 class="font-serif italic text-2xl">The Bride</h3>
         </header>
-        <figure class="rounded-[18px] overflow-hidden aspect-[3/4] bg-neutral-100">
-          <img src="bride.jpg" alt="Olya" class="w-full h-full object-cover" />
+        <figure class="rounded-[18px] overflow-hidden aspect-[3/4] bg-neutral-100 relative">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10"></div>
+          <img src="https://placehold.co/600x800/f5f5f5/cccccc?text=Olya" alt="Olya" class="w-full h-full object-cover" />
         </figure>
         <p class="mt-4 text-xl font-semibold">Olya</p>
+        <p class="text-neutral-600 mt-2">Наша история продолжается...</p>
       </article>
     </section>
 
     <!-- DRESS CODE / PALETTE -->
-    <section class="mt-12 sm:mt-16" data-anim>
+    <section class="mt-12 sm:mt-16 relative" data-anim>
+      <!-- BRANCH BOTTOM LEFT -->
+      <svg class="branch" data-branch style="left:-18px; bottom:-30px; width:260px; height:180px; position:absolute;" viewBox="0 0 260 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path class="stroke" pathLength="1" d="M10 140 C 40 120, 80 120, 110 130 S 170 140, 240 90" />
+        <path class="leaf" d="M100 126 c 9 -12, 20 -12, 29 0 c -9 12 -20 12 -29 0z" />
+        <path class="leaf" d="M206 98 c 8 -10, 16 -10, 24 0 c -8 10 -16 10 -24 0z" />
+      </svg>
+
       <div class="texture rounded-[24px] p-6 sm:p-10 shadow-soft gold-stroke">
         <h3 class="font-serif text-center text-3xl">Dress Code</h3>
         <p class="text-center text-neutral-500 mt-2">Натуральные оттенки — молочный, беж, тауп, кофе.</p>
         <div class="mt-6 grid sm:grid-cols-2 gap-6">
-          <figure class="rounded-[18px] overflow-hidden aspect-[16/10] bg-neutral-100">
-            <img src="moodboard-1.jpg" alt="Moodboard 1" class="w-full h-full object-cover" />
+          <figure class="rounded-[18px] overflow-hidden aspect-[16/10] bg-neutral-100 relative group">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <img src="https://placehold.co/800x500/f9f5f0/cccccc?text=Moodboard+1" alt="Moodboard 1" class="w-full h-full object-cover" />
           </figure>
-          <figure class="rounded-[18px] overflow-hidden aspect-[16/10] bg-neutral-100">
-            <img src="moodboard-2.jpg" alt="Moodboard 2" class="w-full h-full object-cover" />
+          <figure class="rounded-[18px] overflow-hidden aspect-[16/10] bg-neutral-100 relative group">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <img src="https://placehold.co/800x500/f0ebe5/cccccc?text=Moodboard+2" alt="Moodboard 2" class="w-full h-full object-cover" />
           </figure>
         </div>
         <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <span class="w-10 h-10 rounded-full border" style="background:#fbf7e8"></span>
-          <span class="w-10 h-10 rounded-full border" style="background:#e8dcc7"></span>
-          <span class="w-10 h-10 rounded-full border" style="background:#d7c3a5"></span>
-          <span class="w-10 h-10 rounded-full border" style="background:#b9a999"></span>
-          <span class="w-10 h-10 rounded-full border" style="background:#7b5a46"></span>
+          <span class="w-10 h-10 rounded-full border border-neutral-200 shadow-sm" style="background:#fbf7e8" title="Молочный"></span>
+          <span class="w-10 h-10 rounded-full border border-neutral-200 shadow-sm" style="background:#e8dcc7" title="Беж"></span>
+          <span class="w-10 h-10 rounded-full border border-neutral-200 shadow-sm" style="background:#d7c3a5" title="Тауп"></span>
+          <span class="w-10 h-10 rounded-full border border-neutral-200 shadow-sm" style="background:#b9a999" title="Серо-беж"></span>
+          <span class="w-10 h-10 rounded-full border border-neutral-200 shadow-sm" style="background:#7b5a46" title="Кофе"></span>
         </div>
       </div>
     </section>
 
     <!-- TEXT / STORY -->
-    <section class="mt-12 sm:mt-16" data-anim>
+    <section class="mt-12 sm:mt-16 relative" data-anim>
+      <!-- BRANCH TOP RIGHT -->
+      <svg class="branch" data-branch style="right:-20px; top:-30px; width:280px; height:180px; position:absolute;" viewBox="0 0 280 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path class="stroke" pathLength="1" d="M270 30 C 210 40, 180 80, 150 110 S 90 150, 30 160" />
+        <path class="leaf" d="M204 92 c 10 -12, 22 -12, 32 0 c -10 12 -22 12 -32 0z" />
+        <path class="leaf" d="M126 142 c 8 -10, 16 -10, 24 0 c -8 10 -16 10 -24 0z" />
+      </svg>
+
       <article class="texture rounded-[24px] p-6 sm:p-10 shadow-soft gold-stroke">
         <h3 class="font-serif text-3xl">Дорогие, приглашаем</h3>
-        <p class="mt-3 text-neutral-700">вас разделить с нами этот особенный день. Когда встречаются два сердца — рождается история. Наша история продолжается, и очень скоро она наполнится новым смыслом. 15.10.2025 мы станем семьёй и будем счастливы разделить этот день с вами. Это будет день радости и любви — рядом с дорогими людьми.</p>
+        <p class="mt-3 text-neutral-700 leading-relaxed">вас разделить с нами этот особенный день. Когда встречаются два сердца — рождается история. Наша история продолжается, и очень скоро она наполнится новым смыслом. 15.10.2025 мы станем семьёй и будем счастливы разделить этот день с вами. Это будет день радости и любви — рядом с дорогими людьми.</p>
+        <div class="mt-6 flex items-center">
+          <div class="w-12 h-px bg-gold"></div>
+          <p class="ml-4 text-gold italic">С любовью, Tim & Olya</p>
+        </div>
       </article>
     </section>
 
-    <!-- SCHEDULE / PLACE (optional) -->
+    <!-- SCHEDULE / PLACE -->
     <section class="mt-12 sm:mt-16 grid sm:grid-cols-2 gap-6 sm:gap-8" data-anim>
-      <div class="texture rounded-[24px] p-6 sm:p-8 shadow-soft gold-stroke">
+      <div class="texture rounded-[24px] p-6 sm:p-8 shadow-soft gold-stroke hover:shadow-float transition-all duration-500">
         <h4 class="font-serif text-2xl">Когда</h4>
-        <ul class="mt-3 space-y-2">
-          <li><strong>Сбор гостей:</strong> 10:00</li>
+        <ul class="mt-3 space-y-3">
+          <li class="flex items-start"><span class="text-gold mr-2">•</span><div><strong>Сбор гостей:</strong> 10:00</div></li>
+          <li class="flex items-start"><span class="text-gold mr-2">•</span><div><strong>Церемония:</strong> 11:00</div></li>
+          <li class="flex items-start"><span class="text-gold mr-2">•</span><div><strong>Фуршет:</strong> 13:00</div></li>
         </ul>
       </div>
-      <div class="texture rounded-[24px] p-6 sm:p-8 shadow-soft gold-stroke">
+      <div class="texture rounded-[24px] p-6 sm:p-8 shadow-soft gold-stroke hover:shadow-float transition-all duration-500">
         <h4 class="font-serif text-2xl">Где</h4>
-        <p class="mt-3">КМВ, Пятигорск. </p>
-        <a class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold text-white shadow-soft" href="#map" aria-label="Открыть карту">Открыть карту</a>
+        <p class="mt-3">КМВ, Пятигорск. Уютная локация с видом на горы.</p>
+        <a class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold text-white shadow-soft hover:bg-gold/90 transition-colors" href="#map" aria-label="Открыть карту">
+          Открыть карту
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M18 13V19H6V5H12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M15 3H21V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10 14L21 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
       </div>
     </section>
 
     <!-- THANK YOU / GALLERY -->
-    <section class="mt-12 sm:mt-16 mb-24" data-anim>
+    <section class="mt-12 sm:mt-16 mb-24 relative" data-anim>
+      <!-- BRANCH CENTER -->
+      <svg class="branch" data-branch style="left:50%; transform:translateX(-50%); top:-24px; width:300px; height:160px; position:absolute;" viewBox="0 0 300 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path class="stroke" pathLength="1" d="M10 140 C 60 120, 120 120, 160 90 S 230 40, 290 30" />
+        <path class="leaf" d="M146 98 c 10 -12, 22 -12, 32 0 c -10 12 -22 12 -32 0z" />
+        <path class="leaf" d="M224 52 c 8 -10, 16 -10, 24 0 c -8 10 -16 10 -24 0z" />
+      </svg>
+
       <div class="texture rounded-[24px] p-6 sm:p-10 shadow-soft gold-stroke">
         <div class="grid sm:grid-cols-2 gap-6 items-start">
           <div class="space-y-4">
-            <figure class="rounded-[18px] overflow-hidden aspect-[4/3] bg-neutral-100">
-              <img src="gallery-1.jpg" alt="Фото 1" class="w-full h-full object-cover" />
+            <figure class="rounded-[18px] overflow-hidden aspect-[4/3] bg-neutral-100 relative group">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <img src="https://placehold.co/600x450/f8f0ee/cccccc?text=Gallery+1" alt="Фото 1" class="w-full h-full object-cover" />
             </figure>
-            <figure class="rounded-[18px] overflow-hidden aspect-[4/3] bg-neutral-100">
-              <img src="gallery-2.jpg" alt="Фото 2" class="w-full h-full object-cover" />
+            <figure class="rounded-[18px] overflow-hidden aspect-[4/3] bg-neutral-100 relative group">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <img src="https://placehold.co/600x450/e8f0e8/cccccc?text=Gallery+2" alt="Фото 2" class="w-full h-full object-cover" />
             </figure>
           </div>
           <div class="self-center text-center sm:text-left">
             <h3 class="font-serif text-4xl">Thank you!<br><span class="text-xl">T & O</span></h3>
             <p class="mt-4 text-neutral-600">15.10.25 • КМВ • 10:00</p>
+            <div class="mt-6 flex justify-center sm:justify-start">
+              <div class="flex space-x-2">
+                <div class="w-3 h-3 rounded-full bg-gold animate-float"></div>
+                <div class="w-3 h-3 rounded-full bg-gold animate-float-delay"></div>
+                <div class="w-3 h-3 rounded-full bg-gold animate-float-slow"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
-
   </main>
 
   <script>
-    // Intro envelope logic + autoplay + scroll lock
-    const overlay  = document.getElementById('overlay');
-    const envelope = document.getElementById('envelope');
-    const seal     = document.getElementById('seal');
+    // =============== Overlay logic: auto-open once per browser ===============
+    const overlay = document.getElementById('overlay');
+    const env = document.getElementById('env');
+    const seal = document.getElementById('seal');
 
-    function openEnvelope(){
-      if (overlay.dataset.state === 'done') return;
-      envelope.classList.add('open');
-      overlay.classList.add('fade');
-      // after animation finishes: hide overlay and unlock scroll
-      setTimeout(()=>{
-        overlay.style.display='none';
-        overlay.dataset.state='done';
-        document.body.classList.remove('is-locked');
-      }, 1600);
+    const STORAGE_KEY = 'inviteOpened_v2'; // bump version when tweaking behavior
+
+    function showOverlay() {
+      overlay.hidden = false; // make it participate in layout first
+      requestAnimationFrame(() => {
+        overlay.classList.remove('hidden');
+      });
     }
 
-    // Block page scroll underneath (iOS/desktop)
-    const blockScroll = (e)=>{ e.preventDefault(); };
-    overlay.addEventListener('touchmove', blockScroll, {passive:false});
-    overlay.addEventListener('wheel', blockScroll, {passive:false});
+    function hideOverlay() {
+      overlay.classList.add('fadeout');
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+        overlay.hidden = true;
+      }, 1700);
+    }
 
-    // Autoplay envelope on first visit
-    window.addEventListener('load', ()=> {
-      setTimeout(openEnvelope, 800); // tweak delay if needed
+    function openEnvelope() {
+      if (env.classList.contains('is-opening')) return;
+      env.classList.add('is-opening');
+      localStorage.setItem(STORAGE_KEY, '1');
+      
+      // Create additional SVG animations
+      createHearts();
+      createOrnaments();
+      
+      hideOverlay();
+    }
+
+    // Create floating hearts animation
+    function createHearts() {
+      const heartSVG = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" fill="${getComputedStyle(document.documentElement).getPropertyValue('--gold')}"/>
+        </svg>
+      `;
+      
+      for (let i = 0; i < 15; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.innerHTML = heartSVG;
+        heart.style.left = Math.random() * 100 + '%';
+        heart.style.top = Math.random() * 100 + '%';
+        heart.style.animationDelay = (Math.random() * 2) + 's';
+        overlay.appendChild(heart);
+        
+        // Trigger animation
+        setTimeout(() => {
+          heart.classList.add('animate');
+        }, 100);
+      }
+    }
+
+    // Create decorative ornaments
+    function createOrnaments() {
+      const ornaments = [
+        { x: '10%', y: '20%', size: '80px', path: 'M10,10 Q20,5 30,10 T50,10' },
+        { x: '85%', y: '30%', size: '60px', path: 'M5,15 Q15,5 25,15 T45,15' },
+        { x: '15%', y: '75%', size: '70px', path: 'M10,20 Q20,10 30,20 T50,20' },
+        { x: '80%', y: '80%', size: '90px', path: 'M5,25 Q15,15 25,25 T45,25' }
+      ];
+      
+      ornaments.forEach(orn => {
+        const ornament = document.createElement('div');
+        ornament.className = 'ornament';
+        ornament.style.position = 'absolute';
+        ornament.style.left = orn.x;
+        ornament.style.top = orn.y;
+        ornament.style.width = orn.size;
+        ornament.style.height = orn.size;
+        ornament.style.zIndex = '1';
+        
+        ornament.innerHTML = `
+          <svg width="100%" height="100%" viewBox="0 0 50 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="${orn.path}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        `;
+        
+        overlay.appendChild(ornament);
+        
+        // Trigger drawing animation
+        setTimeout(() => {
+          ornament.classList.add('draw');
+        }, 500);
+      });
+    }
+
+    // First visit: autoplay after short delay. Next visits: overlay hidden.
+    window.addEventListener('load', () => {
+      const firstTime = !localStorage.getItem(STORAGE_KEY);
+      if (firstTime) {
+        showOverlay();
+        // sparkles for a bit of magic
+        for (let i = 0; i < 40; i++) {
+          const d = document.createElement('span');
+          d.className = 'sparkle';
+          d.style.left = Math.random() * 100 + '%';
+          d.style.top = 20 + Math.random() * 60 + '%';
+          d.style.animationDelay = (Math.random() * 6) + 's';
+          d.style.width = (1 + Math.random() * 3) + 'px';
+          d.style.height = d.style.width;
+          overlay.appendChild(d);
+        }
+        setTimeout(openEnvelope, 1200); // autoplay open
+      } else {
+        // keep overlay hidden for subsequent visits
+        overlay.classList.add('hidden');
+        overlay.hidden = true;
+      }
     });
 
-    // Fallback: allow manual open by click / keyboard
-    seal.addEventListener('click', openEnvelope);
-    seal.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ openEnvelope(); }});
+    // Manual open by click / keyboard (for accessibility or if autoplay was skipped)
+    seal?.addEventListener('click', openEnvelope);
+    seal?.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') openEnvelope(); });
 
-    // Create subtle sparkles on overlay
-    for(let i=0;i<26;i++){
-      const d=document.createElement('span');
-      d.className='sparkle';
-      d.style.left = Math.random()*100+'%';
-      d.style.top = 20+Math.random()*60+'%';
-      d.style.animationDelay = (Math.random()*6)+'s';
-      overlay.appendChild(d);
-    }
+    // Prevent scrolling under overlay when visible (iOS-friendly)
+    const blockScroll = (e) => { e.preventDefault(); };
+    overlay.addEventListener('touchmove', blockScroll, { passive: false });
+    overlay.addEventListener('wheel', blockScroll, { passive: false });
 
-    // Scroll reveal
+    // =============== Scroll reveal for sections ===============
     const io = new IntersectionObserver((entries)=>{
       entries.forEach(e=>{
         if(e.isIntersecting){
@@ -296,8 +488,41 @@
           io.unobserve(e.target);
         }
       })
-    },{ threshold:.2 });
-    document.querySelectorAll('[data-anim]').forEach(el=>io.observe(el));
+    }, { threshold: 0.12 });
+    document.querySelectorAll('[data-anim]').forEach(el => io.observe(el));
+
+    // =============== SVG branches: draw on scroll ===============
+    const bo = new IntersectionObserver((entries)=>{
+      entries.forEach(({target, isIntersecting})=>{
+        if(isIntersecting){
+          // prepare stroke lengths for smooth dash animation
+          target.querySelectorAll('path.stroke').forEach(p=>{
+            try{
+              const len = p.getTotalLength();
+              p.style.strokeDasharray = len;
+              p.style.strokeDashoffset = len;
+              p.style.setProperty('--dash', len);
+            }catch(e){}
+          });
+          target.classList.add('draw');
+          bo.unobserve(target);
+        }
+      })
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.2 });
+
+    document.querySelectorAll('[data-branch]').forEach(svg => {
+      // init to hidden strokes
+      svg.querySelectorAll('path.stroke').forEach(p=>{
+        try{ const len = p.getTotalLength(); p.style.strokeDasharray = len; p.style.strokeDashoffset = len; }catch(e){}
+      });
+      bo.observe(svg);
+    });
+
+    // Interactive hover lift for links/buttons
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => { el.style.transform = 'translateY(-2px)'; });
+      el.addEventListener('mouseleave', () => { el.style.transform = 'translateY(0)'; });
+    });
   </script>
 </body>
 </html>
